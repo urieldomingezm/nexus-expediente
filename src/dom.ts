@@ -23,12 +23,19 @@ export const uid = (p: string): string => `${p}-${++contador}`
 /** Aplica `clase` a `el` cuando su ancho es menor a `corte` px. Devuelve cómo dejar de observar. */
 export function estrecho(el: HTMLElement, clase = 'estrecho', corte = 560): () => void {
   if (typeof ResizeObserver === 'undefined') return () => {}
+  let cuadro = 0
   const ro = new ResizeObserver((es) => {
     const w = es[0]?.contentRect.width ?? el.getBoundingClientRect().width
-    if (w > 0) el.classList.toggle(clase, w < corte)
+    if (w <= 0 || el.classList.contains(clase) === w < corte) return
+    // Cambiar la clase cambia el alto: se hace después de entregar el aviso para no provocar «ResizeObserver loop».
+    cancelAnimationFrame(cuadro)
+    cuadro = requestAnimationFrame(() => el.classList.toggle(clase, w < corte))
   })
   ro.observe(el)
-  return () => ro.disconnect()
+  return () => {
+    cancelAnimationFrame(cuadro)
+    ro.disconnect()
+  }
 }
 
 export const fechaLarga = (f: string, locale: string): string => {
