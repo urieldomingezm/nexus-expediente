@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ejemplos · nexus-expediente</title>
+    <meta name="description" content="Ejemplos ejecutables de nexus-expediente: el expediente de una persona, la revisión de RR. HH. y la vista de equipo." />
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <!--@cabecera:ejemplos-->
+    <main class="doc">
+      <aside class="lateral" data-toc aria-label="En esta página"></aside>
+      <article class="contenido" id="contenido">
+        <h1>Ejemplos</h1>
+        <p class="nota">Todo corre aquí mismo, con la librería de esta página. Los archivos no se suben a ningún lado: solo se lee su nombre y su tamaño.</p>
+
+        <h2 id="persona">El expediente de una persona</h2>
+        <p>Laura sube sus documentos. Prueba con un PDF, con una imagen en «INE» y con un archivo de otro tipo para ver el aviso.</p>
+        <div class="demo" id="demo-persona"></div>
+        <details class="codigo"><summary>Ver el código</summary>
+<pre data-lang="ts"><code>montarExpediente(el, {
+  persona: { id: 'e-17', nombre: 'Laura Méndez', puesto: 'Analista' },
+  requisitos,
+  documentos,
+  alEvento: (e) =&gt; api.bitacora(e),
+})</code></pre></details>
+
+        <h2 id="revision">Revisión de RR. HH.</h2>
+        <p>Con <code>puedeRevisar</code>, los documentos en revisión se aprueban o se rechazan con motivo. Debajo verás los eventos tal como llegarían a tu bitácora.</p>
+        <div class="demo" id="demo-revision"></div>
+        <h3 id="bitacora">Eventos recibidos</h3>
+        <pre data-lang="json" id="bitacora-salida"><code>Todavía no hay eventos: sube, aprueba o rechaza algo.</code></pre>
+
+        <h2 id="equipo">Vista de equipo</h2>
+        <p>A quién le falta qué, de menor a mayor avance. Busca por nombre o puesto y exporta el CSV.</p>
+        <div class="demo" id="demo-equipo"></div>
+        <p id="equipo-abre" role="status"></p>
+
+        <h2 id="oscuro">Tema oscuro</h2>
+        <p>Con <code>tema: 'auto'</code> sigue al sistema; con <code>'claro'</code> u <code>'oscuro'</code> lo fijas.</p>
+        <div class="demo" id="demo-oscuro"></div>
+      </article>
+    </main>
+    <!--@pie-->
+    <script type="module" src="./src/ejemplos.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,114 @@
+name: Publicar en npm
+
+# Se ejecuta al subir una etiqueta v* (p. ej. v0.3.0) o a mano desde la pestaña Actions.
+# Usa publicación en etapas (staged publishing): el flujo SUBE la versión a npm en espera y NO la hace pública.
+# Tú la apruebas con 2FA en npmjs.com (pestaña "Staged Packages") o con `npm stage approve <id>`.
+#
+# Requiere el secreto NPM_TOKEN: token "Granular access" con permiso "Read and write (stage only)",
+# SIN la opción bypass 2FA (los tokens bypass perderán la publicación directa en enero de 2027).
+#
+# Orden: 1) ¿la versión ya está en npm? Si está, termina en verde sin hacer nada más (sirve para crear la release
+# de GitHub de una versión ya publicada). 2) calidad (lint, tipos, unitarias, build, paquete). 3) E2E en los
+# 3 navegadores en paralelo. 4) subir a npm en espera.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: ¿Hay que publicar?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      publicar: ${{ steps.npm.outputs.publicar }}
+      version: ${{ steps.npm.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: La etiqueta coincide con la versión
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+
+      - name: ¿Esta versión ya está en npm?
+        id: npm
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if npm view "nexus-expediente@$v" version >/dev/null 2>&1; then
+            echo "publicar=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::nexus-expediente@$v ya está en npm: no se vuelve a publicar."
+          else
+            echo "publicar=si" >> "$GITHUB_OUTPUT"
+          fi
+
+  calidad:
+    name: Calidad y paquete
+    needs: version
+    if: needs.version.outputs.publicar == 'si'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Lint, formato y tipos
+        run: npm run lint && npm run format:check && npm run typecheck
+
+      - name: Pruebas unitarias
+        run: npm run test:coverage
+
+      - name: Compilar, tamaño, API y paquete
+        run: npm run build && npm run size && npm run api:check && npm run check:paquete
+
+  e2e:
+    name: E2E (${{ matrix.navegador }})
+    needs: version
+    if: needs.version.outputs.publicar == 'si'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        navegador: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Instalar ${{ matrix.navegador }}
+        run: npx playwright install --with-deps ${{ matrix.navegador }}
+      # Algunas pruebas (p. ej. iife-swal) cargan los archivos compilados de dist/, igual que en ci.yml.
+      - name: Compilar
+        run: npm run build
+      - run: npx playwright test --project=${{ matrix.navegador }}
+
+  publicar:
+    name: Subir a npm en espera de aprobación
+    needs: [version, calidad, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: npm reciente (stage requiere npm >= 11.15)
+        run: npm install -g npm@latest
+      - run: npm ci
+      - name: Subir nexus-expediente@${{ needs.version.outputs.version }}
+        run: npm stage publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

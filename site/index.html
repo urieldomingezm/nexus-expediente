@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nexus-expediente · el expediente digital del empleado para sistemas de empresa</title>
+    <meta name="description" content="Qué documentos pide cada puesto, cuáles entregó cada persona, cuáles faltan y cuáles se vencen. Sin dependencias, accesible y aislado con Shadow DOM." />
+  </head>
+  <body>
+    <a class="saltar" href="#inicio">Saltar al contenido</a>
+    <!--@cabecera:inicio-->
+    <main id="inicio">
+      <section class="hero">
+        <div class="hero-texto">
+          <h1>El expediente digital del empleado</h1>
+          <p class="lema">Qué documentos pide cada puesto, cuáles faltan y cuáles se vencen. Sin dependencias y con accesibilidad probada.</p>
+          <div class="acciones izq">
+            <a class="btn primario grande" href="primeros-pasos.html">Empezar</a>
+            <a class="btn grande" href="ejemplos.html">Ver ejemplos</a>
+          </div>
+          <div class="instalar"><code>npm i nexus-expediente</code><button type="button" class="btn chico" data-copiar="npm i nexus-expediente">Copiar</button></div>
+        </div>
+        <div class="ventana" aria-label="Ejemplo de código">
+          <div class="ventana-barra"><span class="ventana-t">expediente.ts</span></div>
+<pre data-lang="ts"><code>import { montarExpediente } from 'nexus-expediente'
+
+montarExpediente(el, {
+  persona: { id: 'e-17', nombre: 'Laura Méndez' },
+  requisitos,
+  documentos: await api.documentos('e-17'),
+  alEvento: (e) =&gt; api.bitacora(e),
+})</code></pre>
+        </div>
+      </section>
+
+      <section class="datos" aria-label="Cifras"><div class="datos-fila">
+        <div><strong>0</strong><span>dependencias</span></div>
+        <div><strong><!--@tam:nexus-expediente--></strong><span>la librería completa, gzip</span></div>
+        <div><strong>7</strong><span>estados de un documento</span></div>
+        <div><strong>AA</strong><span>objetivo WCAG 2.2, con pruebas axe</span></div>
+      </div></section>
+
+      <section class="bloque" aria-labelledby="prueba">
+        <h2 id="prueba">Míralo funcionando</h2>
+        <p class="sub">Esta es la librería de esta página, no una captura. Sube un archivo.</p>
+        <div class="demo" id="demo-inicio"></div>
+      </section>
+
+      <section class="bloque" aria-labelledby="porque">
+        <h2 id="porque">Por qué</h2>
+        <p class="sub">Todo sistema de RR. HH. termina escribiendo a mano la misma lista de documentos pendientes. Aquí ya está resuelta, con los casos que duelen.</p>
+        <div class="tarjetas">
+          <div class="tarjeta"><h3>Vencimientos que avisan</h3><p>Cada documento puede vencer (INE, licencia, constancias). Pasa a «por vencer» con aviso configurable y a «vencido» sin que nadie lo revise.</p></div>
+          <div class="tarjeta"><h3>Requisitos por puesto</h3><p>El chofer entrega licencia; el analista, no. Define los requisitos una vez y cada persona ve los suyos.</p></div>
+          <div class="tarjeta"><h3>Revisión sin ventanas</h3><p>Aprobar o rechazar con motivo, dentro de la misma lista, con teclado y avisos para lectores de pantalla.</p></div>
+          <div class="tarjeta"><h3>Vista de equipo</h3><p>A quién le falta qué, de menor a mayor avance, con búsqueda y CSV que Excel no puede usar como fórmula.</p></div>
+          <div class="tarjeta"><h3>El mismo motor en tu API</h3><p><code>nexus-expediente/motor</code> calcula estados y avance sin DOM, para reportes y correos de «documentos por vencer».</p></div>
+          <div class="tarjeta"><h3>Listo para tu bitácora</h3><p>Cada cambio llega como un registro de auditoría: quién, qué, cuándo, antes y después. <a href="integracion.html">Ver cómo conectarlo.</a></p></div>
+        </div>
+      </section>
+
+      <section class="bloque" aria-labelledby="modulos">
+        <h2 id="modulos">Rutas</h2>
+        <p class="sub">Tamaños medidos al construir este sitio (minificado + gzip).</p>
+        <div class="tabla"><table>
+          <thead><tr><th>Ruta</th><th>Para qué</th><th>Tamaño</th></tr></thead>
+          <tbody>
+            <tr><td><code>nexus-expediente</code></td><td>Interfaz del expediente, vista de equipo y motor</td><td class="dato"><!--@tam:nexus-expediente--></td></tr>
+            <tr><td><code>nexus-expediente/motor</code></td><td>Solo la lógica, sin DOM (navegador y servidor)</td><td class="dato"><!--@tam:motor--></td></tr>
+            <tr><td><code>nexus-expediente/all</code></td><td>Para una etiqueta <code>script</code>: <code>window.NexusExpediente</code></td><td class="dato"><!--@tam:nexus-expediente.all--></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+    <!--@pie-->
+    <script type="module" src="./src/inicio.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+export { montarExpediente, montarEquipo } from './ui'
+export type { OpcionesExpediente, ControlExpediente, OpcionesEquipo, ControlEquipo } from './ui'
+export * from './motor'
+export type * from './tipos'
+export { TEXTOS_ES } from './textos'
+export type { Textos, TextosParciales } from './textos'

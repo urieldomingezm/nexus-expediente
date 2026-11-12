@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Tipos, unitarias, build y tamaño
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Pruebas unitarias + cobertura
+        run: npm run test:coverage
+
+      - name: Build (librería + tipos)
+        run: npm run build
+
+      - name: Sitio de documentación
+        run: npm run build:site
+
+      - name: Tamaño (gzip)
+        run: npm run size
+
+      - name: La API pública coincide con api/nexus-expediente.api.md
+        run: npm run api:check
+
+      - name: Auditoría de lo que se publica (sin dependencias vulnerables en producción)
+        run: npm audit --omit=dev --audit-level=low
+
+      - name: Subir cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage
+          retention-days: 7
+
+  tamano:
+    name: Tamaño vs rama base
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: .base
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Compilar la rama base
+        working-directory: .base
+        run: npm ci && npm run build
+      - name: Compilar este PR
+        run: npm ci && npm run build
+      - name: Comparar (tabla en el resumen del job)
+        run: node scripts/tamano.mjs --base .base
+
+  paquete:
+    name: Paquete publicado (tipos, Node, Vite, webpack)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Are The Types Wrong + proyectos de prueba
+        run: npm run check:paquete
+
+  e2e:
+    name: E2E (${{ matrix.navegador }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        navegador: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Instalar ${{ matrix.navegador }}
+        run: npx playwright install --with-deps ${{ matrix.navegador }}
+
+      - name: Build (el sitio de documentación mide los tamaños reales de dist/)
+        run: npm run build
+
+      - name: Pruebas de punta a punta
+        run: npx playwright test --project=${{ matrix.navegador }}
+
+      - name: Subir reporte
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-${{ matrix.navegador }}
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7

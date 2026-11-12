@@ -1,0 +1,60 @@
+name: Documentación
+
+# Publica el sitio (site/) en GitHub Pages: al hacer merge a main de algo que cambia el sitio o su contenido, al publicarse una
+# release o a mano desde Actions. Los cambios que no afectan al sitio (flujos de otros procesos, pruebas) no lo republican.
+# Requiere activar Pages una sola vez: Settings → Pages → Source: GitHub Actions.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'api/**'
+      - 'src/**' # el sitio muestra los tamaños reales y corre los ejemplos con el código de la librería
+      - 'package.json'
+      - 'vite.config.js'
+      - '.github/workflows/docs.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build de la librería (el sitio mide los tamaños reales)
+        run: npm run build
+      - name: Build del sitio
+        run: npm run build:site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site-dist
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

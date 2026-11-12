@@ -1,0 +1,120 @@
+{
+  "name": "nexus-expediente",
+  "version": "0.0.0",
+  "description": "Employee digital file: required documents by job, statuses, expirations and progress. Accessible, isolated with Shadow DOM and dependency-free.",
+  "license": "MIT",
+  "author": "Angel Uriel Domínguez Medina (DevMedina) (https://devmedina.is-a.dev/)",
+  "homepage": "https://github.com/urieldomingezm/nexus-expediente#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urieldomingezm/nexus-expediente.git"
+  },
+  "bugs": "https://github.com/urieldomingezm/nexus-expediente/issues",
+  "type": "module",
+  "main": "./dist/nexus-expediente.umd.cjs",
+  "module": "./dist/nexus-expediente.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "motor": [
+        "./dist/motor-entrada.d.ts"
+      ],
+      "all": [
+        "./dist/global.d.ts"
+      ]
+    }
+  },
+  "unpkg": "./dist/nexus-expediente.all.iife.js",
+  "jsdelivr": "./dist/nexus-expediente.all.iife.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/nexus-expediente.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/nexus-expediente.umd.cjs"
+      }
+    },
+    "./motor": {
+      "import": {
+        "types": "./dist/motor-entrada.d.ts",
+        "default": "./dist/motor.js"
+      },
+      "require": {
+        "types": "./dist/motor-entrada.d.cts",
+        "default": "./dist/motor.umd.cjs"
+      }
+    },
+    "./all": {
+      "types": "./dist/global.d.ts",
+      "default": "./dist/nexus-expediente.all.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "expediente",
+    "employee-file",
+    "onboarding",
+    "documents",
+    "hr",
+    "rrhh",
+    "mexico",
+    "accessibility",
+    "a11y",
+    "shadow-dom",
+    "web-components",
+    "dependency-free"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vite --open /test/paginas/",
+    "build": "vite build --mode core && vite build --mode motor && vite build --mode all && tsc -p tsconfig.build.json && node scripts/tipos.mjs",
+    "build:site": "vite build --mode site",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "nueva-version": "node scripts/nueva-version.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "size": "node scripts/tamano.mjs",
+    "api": "node scripts/api.mjs",
+    "api:check": "node scripts/api.mjs --check",
+    "check:paquete": "attw --pack . --ignore-rules cjs-resolves-to-esm",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^9.39.5",
+    "@fontsource-variable/onest": "^5.3.1",
+    "@fontsource-variable/outfit": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@playwright/test": "^1.65.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "happy-dom": "^21.0.4",
+    "marked": "^18.2.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^7.3.8",
+    "vitest": "^5.1.0"
+  }
+}
