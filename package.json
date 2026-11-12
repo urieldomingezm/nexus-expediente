@@ -1,6 +1,6 @@
 {
   "name": "nexus-expediente",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Employee digital file: required documents by job, statuses, expirations and progress. Accessible, isolated with Shadow DOM and dependency-free.",
   "license": "MIT",
   "author": "Angel Uriel Domínguez Medina (DevMedina) (https://devmedina.is-a.dev/)",

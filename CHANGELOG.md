@@ -4,6 +4,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). V
 
 ## [Sin publicar]
 
+## [0.1.0] - 2026-11-12
+
 ### Agregado
 
 - Primera versión de **nexus-expediente**: el expediente digital del empleado, sin dependencias.
